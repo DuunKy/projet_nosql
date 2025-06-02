@@ -1,90 +1,241 @@
-# 📊 Besoins Statistiques d'une Écurie de Formule 1
+# 📊 Besoins statistiques pour une écurie de F1
 
-Ce document présente une liste de 15 besoins statistiques qu'une écurie de Formule 1 peut analyser à partir des données disponibles dans la base.
-
----
-
-## 🏎️ 1. Performance du Véhicule
-
-1. **Temps moyen au tour par pilote et par course**  
-   _Source : `LapTime`, `Race`, `Driver`_  
-   Permet d’évaluer la régularité des performances sur une course complète.
-
-2. **Évolution du temps au tour (delta)**  
-   _Source : `LapTime`_  
-   Utile pour détecter l’usure des pneus ou une dégradation des performances.
-
-3. **Analyse des arrêts aux stands**  
-   _Source : `PitStop`, `Constructor`_  
-   Moyenne et nombre d’arrêts par écurie, durée, et régularité.
-
-4. **Taux d’abandon**  
-   _Source : `Result`, `Status`_  
-   Nombre de courses non terminées, par pilote ou par écurie.
+Ce document liste **15 besoins statistiques** pertinents pour une écurie de F1, à partir du schéma de base de données fourni. Pour chaque besoin, un **descriptif d'API complète** est donné, sans implémentation directe, afin de définir les objectifs et les paramètres requis pour répondre au besoin.
 
 ---
 
-## 👨‍✈️ 2. Pilotage
+### 1. 📈 Évolution des performances d'une écurie sur une saison
 
-5. **Écart grille de départ / arrivée**  
-   _Source : `Result`_  
-   Analyse des positions gagnées ou perdues pendant une course.
+**Objectif :** Suivre les points gagnés par une écurie course après course sur une saison donnée.
 
-6. **Comparaison qualif/course**  
-   _Source : `Qualifying`, `Result`_  
-   Évalue l'efficacité du pilote à convertir une bonne qualification en résultat.
+**Descriptif API :**
 
-7. **Meilleur pilote par course (intra-écurie)**  
-   _Source : `Result`, `Constructor`_  
-   Identifier les leaders au sein de chaque équipe.
+* **Route :** `/api/v1/teams/:constructorId/performance`
+* **Méthode :** GET
+* **Params :**
 
----
-
-## 🧠 3. Stratégie de Course
-
-8. **Tours moyens entre deux arrêts aux stands**  
-   _Source : `PitStop`_  
-   Aide à l’optimisation des stratégies d’arrêt.
-
-9. **Nombre d’arrêts par course et par pilote**  
-   _Source : `PitStop`, `Driver`, `Race`_  
-   Données utiles pour l’analyse stratégique globale.
-
-10. **Écart d’arrivée entre les deux pilotes d’une écurie**  
-    _Source : `Result`, `Constructor`_  
-    Permet de mesurer la cohérence des performances au sein de l’équipe.
+    * `constructorId` (ID de l'écurie)
+    * `season` (année)
+* **Réponse attendue :** Liste des courses avec nom, date, points marqués.
+* **Utilisation :** Graphique en ligne des points cumulés.
 
 ---
 
-## 📊 4. Performance Globale
+### 2. 🏆 Classement général des écuries pour une saison
 
-11. **Classement constructeur par saison**  
-    _Source : `ConstructorStandings`_  
-    Classement final, analyse des écarts et des tendances par saison.
+**Objectif :** Afficher le classement final des écuries pour une saison.
 
-12. **Évolution du score pilote au fil de la saison**  
-    _Source : `DriverStandings`, `Race`, `Season`_  
-    Utile pour évaluer les progressions et baisses de forme.
+**Descriptif API :**
 
-13. **Nombre de victoires**  
-    _Source : `Result`_  
-    Par pilote ou par constructeur (`position = 1`).
+* **Route :** `/api/v1/seasons/:year/constructors/standings`
+* **Méthode :** GET
+* **Params :**
 
-14. **Analyse des positions de départ**  
-    _Source : `Result.grid`_  
-    Statistiques sur les grilles de départ pour stratégie qualif.
-
-15. **Circuits favoris par écurie**  
-    _Source : `Result`, `Constructor`, `Race`, `Circuit`_  
-    Classement des circuits où chaque écurie performe le mieux.
+    * `year`
+* **Réponse attendue :** Liste ordonnée des écuries avec points et position.
+* **Utilisation :** Dashboard classement constructeur.
 
 ---
 
-## ✅ Remarques
+### 3. 🧍‍♂️ Meilleurs pilotes d'une écurie donnée
 
-- Toutes les analyses ci-dessus peuvent être effectuées à partir du modèle relationnel actuel.
-- L’usage de jointures est indispensable pour relier les entités comme `Race`, `Driver`, `Constructor`, etc.
-- Ces indicateurs sont essentiels pour alimenter des tableaux de bord F1, optimiser les stratégies et améliorer la compétitivité.
+**Objectif :** Identifier les pilotes ayant rapporté le plus de points à une écurie.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/top-drivers`
+* **Méthode :** GET
+* **Params :**
+
+    * `id` (écurie)
+    * `season` (facultatif pour filtrer par année)
+* **Réponse attendue :** Liste de pilotes avec leurs points et classements.
 
 ---
 
+### 4. ⏱️ Temps moyen au tour par circuit
+
+**Objectif :** Connaitre la moyenne des temps au tour d’une écurie sur chaque circuit.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/lap-times`
+* **Méthode :** GET
+* **Params :**
+
+    * `id` (écurie)
+    * `season` (facultatif)
+* **Réponse attendue :** Moyenne des temps par circuit, nombre de tours.
+
+---
+
+### 5. 🛠️ Nombre d'abandons par saison
+
+**Objectif :** Suivre la fiabilité mécanique en comptant les abandons.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/retirements`
+* **Méthode :** GET
+* **Params :**
+
+    * `id` (écurie)
+    * `season` (facultatif)
+* **Réponse attendue :** Nombre d'abandons, causes, pilotes concernés.
+
+---
+
+### 6. 🏁 Comparaison qualifs vs résultats en course
+
+**Objectif :** Mesurer les gains ou pertes de position entre qualif et course.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/qualif-vs-race`
+* **Méthode :** GET
+* **Params :**
+
+    * `id` (écurie)
+* **Réponse attendue :** Liste des pilotes avec position départ / arrivée et delta.
+
+---
+
+### 7. 🛑 Performances dans les arrêts au stand
+
+**Objectif :** Évaluer les durées moyennes et écarts sur les pit stops.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/pitstops`
+* **Méthode :** GET
+* **Params :**
+
+    * `id` (écurie)
+* **Réponse attendue :** Moyenne, max, min, par course et global.
+
+---
+
+### 8. ⚔️ Comparaison avec les autres écuries
+
+**Objectif :** Comparer les performances (points, podiums) avec d’autres écuries.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/compare`
+* **Méthode :** GET
+* **Params :**
+
+    * `ids[]` (liste des écuries)
+    * `season` (optionnel)
+* **Réponse attendue :** Tableau comparatif.
+
+---
+
+### 9. 🌍 Répartition des circuits où l’écurie performe le mieux
+
+**Objectif :** Identifier les circuits favoris en fonction des résultats.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/top-circuits`
+* **Méthode :** GET
+* **Params :**
+
+    * `id`
+* **Réponse attendue :** Liste des circuits avec classement moyen, points.
+
+---
+
+### 10. 🧮 Moyenne de points par pilote et par course
+
+**Objectif :** Connaitre la régularité des pilotes.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/driver-averages`
+* **Méthode :** GET
+* **Params :**
+
+    * `id`
+* **Réponse attendue :** Moyenne par pilote (points/course).
+
+---
+
+### 11. 🪑 Position moyenne sur la grille de départ
+
+**Objectif :** Évaluer la compétitivité en qualifications.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/grid-stats`
+* **Méthode :** GET
+* **Params :**
+
+    * `id`
+* **Réponse attendue :** Moyenne position départ par pilote / saison.
+
+---
+
+### 12. 🎯 Ratio de podiums par rapport aux courses courues
+
+**Objectif :** Taux de performance élevé de l’écurie.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/podium-ratio`
+* **Méthode :** GET
+* **Params :**
+
+    * `id`
+* **Réponse attendue :** Pourcentage podiums / courses.
+
+---
+
+### 13. 🏎️ Temps moyen au tour dans les sprints
+
+**Objectif :** Analyse des performances dans les courses sprint.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/sprint-laps`
+* **Méthode :** GET
+* **Params :**
+
+    * `id`
+* **Réponse attendue :** Moyenne des temps par sprint.
+
+---
+
+### 14. 🔄 Evolution du classement par course
+
+**Objectif :** Suivre la montée ou la chute au classement au fil de la saison.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/standing-evolution`
+* **Méthode :** GET
+* **Params :**
+
+    * `id`
+    * `season`
+* **Réponse attendue :** Liste ordonnée des positions par course.
+
+---
+
+### 15. 🧪 Comparaison performances qualif vs sprint vs course
+
+**Objectif :** Analyser la constance ou les écarts de performance.
+
+**Descriptif API :**
+
+* **Route :** `/api/v1/constructors/:id/full-comparison`
+* **Méthode :** GET
+* **Params :**
+
+    * `id`
+    * `season` (facultatif)
+* **Réponse attendue :** Tableau comparatif par pilote et type de session (qualif / sprint / course).
+
+---
+
+Souhaitez-vous maintenant générer les **implémentations** de ces routes dans un framework Node.js ou Python (FastAPI par exemple) ?
