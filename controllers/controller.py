@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from models import team_performance, constructors_standings, top_drivers
+from models import team_performance, constructors_standings, top_drivers, lap_time, retirements, qualif_vs_race
 
 
 def get_team_performance(team_id, season=None):
@@ -42,39 +42,16 @@ def get_top_drivers(team_id, season=None):
 
     return top_drivers.model(team_id, season)
 
-def get_lap_times(id, season, driver):
-    # Placeholder for actual logic to retrieve lap times
-    # In a real application, this would query a database or an external API
+def get_lap_times(id, cicuit, season, driver):
+    if not driver or not season:
+        return {"error": "Driver and season parameters are required"}, 400
+
+    return lap_time.model(id, cicuit, season, driver)
+
+def get_retirements(id, season):
     if not season:
-        return jsonify({'error': 'Season parameter is required'}), 400
-
-    # Simulated response
-    lap_times_data = {
-        'constructorId': id,
-        'season': season,
-        'lapTimes': [
-            {'circuitId': 1, 'averageLapTime': '1:30.123'},
-            {'circuitId': 2, 'averageLapTime': '1:29.456'},
-            {'circuitId': 3, 'averageLapTime': '1:31.789'}
-        ]
-    }
-
-    return jsonify(lap_times_data), 200
-
-def get_retirements(id, season=None):
-    # Placeholder for actual logic to retrieve retirements
-    # In a real application, this would query a database or an external API
-    # Simulated response
-    retirements_data = {
-        'constructorId': id,
-        'season': season,
-        'retirements': [
-            {'raceId': 1, 'driverId': 101, 'reason': 'Mechanical failure'},
-            {'raceId': 2, 'driverId': 102, 'reason': 'Accident'},
-            {'raceId': 3, 'driverId': 103, 'reason': 'Engine failure'}
-        ]
-    }
-    return jsonify(retirements_data), 200
+        return {"error": "Season parameter is required"}, 400
+    return retirements.model(id, season)
 
 
 def get_qualif_vs_race(id, season, driver):
@@ -84,7 +61,7 @@ def get_qualif_vs_race(id, season, driver):
     :param season: 
     :return: 
     """
-    return jsonify({'message': f'Qualifying {id} at season {season}'}), 200
+    return qualif_vs_race.model(id, season, driver)
 
 
 def get_pitstops(id, season):

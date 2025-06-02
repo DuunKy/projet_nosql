@@ -55,11 +55,13 @@ Ce document liste **15 besoins statistiques** pertinents pour une écurie de F1,
 
 ### 4. ⏱️ Temps moyen au tour par circuit
 
+**!!Requete API lente!!**
+
 **Objectif :** Connaitre la moyenne des temps au tour d’une écurie sur chaque circuit.
 
 **Descriptif API :**
 
-* **Route :** `/api/v1/constructors/:id/lap-times`
+* **Route :** `/api/v1/constructors/:id/:circuit/lap-times`
 * **Méthode :** GET
 * **Params :**
 

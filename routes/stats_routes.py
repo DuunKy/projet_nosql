@@ -23,11 +23,11 @@ def get_top_drivers(id):
     return controller.get_top_drivers(id, season)
 
 # 4. Temps moyen au tour par circuit
-@stats_api.route('/constructors/<int:id>/lap-times', methods=['GET'])
-def get_lap_times(id):
+@stats_api.route('/constructors/<int:id>/<int:cicuit>/lap-times', methods=['GET'])
+def get_lap_times(id, cicuit):
     season = request.args.get('season')
     driver = request.args.get('driver')
-    return controller.get_lap_times(id, season, driver)
+    return controller.get_lap_times(id, cicuit, season, driver)
 
 # 5. Nombre d'abandons par saison
 @stats_api.route('/constructors/<int:id>/retirements', methods=['GET'])
