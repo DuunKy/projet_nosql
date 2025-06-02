@@ -1,7 +1,6 @@
 from flask import Blueprint, request
 
 from controllers import controller
-from controllers.controller import *
 
 stats_api = Blueprint('stats_api', __name__, url_prefix='/api/v1')
 
