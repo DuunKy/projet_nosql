@@ -10,7 +10,6 @@ load_dotenv()
 # Récupérer les variables d’environnement
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
-COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 DATA_PATH = os.getenv("DATA_PATH")
 
 def importer_csv_vers_mongo(csv_path, db_name, collection_name):
@@ -27,7 +26,7 @@ def importer_csv_vers_mongo(csv_path, db_name, collection_name):
     data = df.to_dict(orient="records")
     if data:
         result = collection.insert_many(data)
-        print(f"[OK] {len(result.inserted_ids)} documents insérés depuis {csv_path}")
+        print(f"[OK] {len(result.inserted_ids)} documents insérés dans '{collection_name}' depuis {csv_path}")
     else:
         print(f"[INFO] Aucun enregistrement dans {csv_path}")
 
@@ -45,4 +44,5 @@ if __name__ == "__main__":
 
     for fichier in fichiers_csv:
         chemin_complet = os.path.join(DATA_PATH, fichier)
-        importer_csv_vers_mongo(chemin_complet, DB_NAME, COLLECTION_NAME)
+        nom_collection = os.path.splitext(fichier)[0]  # enlève ".csv"
+        importer_csv_vers_mongo(chemin_complet, DB_NAME, nom_collection)
