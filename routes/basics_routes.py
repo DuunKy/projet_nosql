@@ -39,63 +39,57 @@ def get_constructors():
 @basics_api.route('/results', methods=['GET'])
 def get_results():
     id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_results(id, season)
+
+    return basic_controller.get_results(id)
 
 # 7. Get Qualifying
 @basics_api.route('/qualifying', methods=['GET'])
 def get_qualifying():
     id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_qualifying(id, season)
+
+    return basic_controller.get_qualifying(id)
 
 # 8. Get Pit Stops
 @basics_api.route('/pitstops', methods=['GET'])
 def get_pitstops():
-    id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_pitstops(id, season)
+    raceid = request.args.get('raceid')
+
+    stop = request.args.get('stop')
+    return basic_controller.get_pitstops(raceid, stop)
 
 # 9. Get Lap Times
 @basics_api.route('/lap-times', methods=['GET'])
 def get_lap_times():
-    id = request.args.get('id')
-    circuit = request.args.get('circuit')
-    season = request.args.get('season')
+    raceid = request.args.get('raceid')
+
     driver = request.args.get('driver')
-    return basic_controller.get_lap_times(id, circuit, season, driver)
+    lap = request.args.get('lap')
+    return basic_controller.get_lap_times(raceid, driver, lap)
 
-# 10. Get Retirements
-@basics_api.route('/retirements', methods=['GET'])
-def get_retirements():
-    id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_retirements(id, season)
-
-# 11. Get Driver Standings
+# 10. Get Driver Standings
 @basics_api.route('/driver-standings', methods=['GET'])
 def get_driver_standings():
     id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_driver_standings(id, season)
 
-# 12. Get Constructor Standings
+    return basic_controller.get_driver_standings(id)
+
+# 11. Get Constructor Standings
 @basics_api.route('/constructor-standings', methods=['GET'])
 def get_constructor_standings():
     id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_constructor_standings(id, season)
 
-# 13. Get Constructor Results
+    return basic_controller.get_constructor_standings(id)
+
+# 12. Get Constructor Results
 @basics_api.route('/constructor-results', methods=['GET'])
 def get_constructor_results():
     id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_constructor_results(id, season)
 
-# 14. Get Sprint Results
+    return basic_controller.get_constructor_results(id)
+
+# 13. Get Sprint Results
 @basics_api.route('/sprint-results', methods=['GET'])
 def get_sprint_results():
     id = request.args.get('id')
-    season = request.args.get('season')
-    return basic_controller.get_sprint_results(id, season)
+
+    return basic_controller.get_sprint_results(id)

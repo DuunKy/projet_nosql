@@ -9,7 +9,7 @@ def model(id, season=None, driver=None):
     if season:
         race_filter["year"] = int(season)
 
-    races = list(DATABASE["races"].find(race_filter, {"raceId": 1}))
+    races = list(DATABASE["races"].find(race_filter))
     race_ids = [r["raceId"] for r in races]
 
     if not race_ids:

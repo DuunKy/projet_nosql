@@ -2,22 +2,21 @@
 
 ## 🧩 Basics API (`/api/v1`)
 
-| #  | Endpoint                 | Method | Query Params                        | Description                              |
-|----|--------------------------|--------|-------------------------------------|------------------------------------------|
-| 1  | `/seasons`               | GET    | `year`                              | Liste ou détail des saisons              |
-| 2  | `/circuits`              | GET    | `id`                                | Liste ou détail des circuits             |
-| 3  | `/races`                 | GET    | `id`, `season`                      | Courses pour un circuit et/ou une saison |
-| 4  | `/drivers`               | GET    | `id`                                | Liste ou détail des pilotes              |
-| 5  | `/constructors`          | GET    | `id`                                | Liste ou détail des écuries              |
-| 6  | `/results`               | GET    | `id`, `season`                      | Résultats de course                      |
-| 7  | `/qualifying`            | GET    | `id`, `season`                      | Résultats de qualification               |
-| 8  | `/pitstops`              | GET    | `id`, `season`                      | Détails des arrêts au stand              |
-| 9  | `/lap-times`             | GET    | `id`, `circuit`, `season`, `driver` | Temps au tour                            |
-| 10 | `/retirements`           | GET    | `id`, `season`                      | Courses avec abandon                     |
-| 11 | `/driver-standings`      | GET    | `id`, `season`                      | Classement des pilotes                   |
-| 12 | `/constructor-standings` | GET    | `id`, `season`                      | Classement des écuries                   |
-| 13 | `/constructor-results`   | GET    | `id`, `season`                      | Résultats constructeur                   |
-| 14 | `/sprint-results`        | GET    | `id`, `season`                      | Résultats des sprints                    |
+| #  | Endpoint                 | Method | Query Params              | Description                              |
+|----|--------------------------|--------|---------------------------|------------------------------------------|
+| 1  | `/seasons`               | GET    | `year`                    | Liste ou détail des saisons              |
+| 2  | `/circuits`              | GET    | `id`                      | Liste ou détail des circuits             |
+| 3  | `/races`                 | GET    | `id`, `season`            | Courses pour un circuit et/ou une saison |
+| 4  | `/drivers`               | GET    | `id`                      | Liste ou détail des pilotes              |
+| 5  | `/constructors`          | GET    | `id`                      | Liste ou détail des écuries              |
+| 6  | `/results`               | GET    | `id`                      | Résultats de course                      |
+| 7  | `/qualifying`            | GET    | `id`                      | Résultats de qualification               |
+| 8  | `/pitstops`              | GET    | `raceid`, `stop`          | Détails des arrêts au stand              |
+| 9  | `/lap-times`             | GET    | `raceid`, `driver`, `lap` | Temps au tour                            |
+| 10 | `/driver-standings`      | GET    | `id`                      | Classement des pilotes                   |
+| 11 | `/constructor-standings` | GET    | `id`                      | Classement des écuries                   |
+| 12 | `/constructor-results`   | GET    | `id`                      | Résultats constructeur                   |
+| 13 | `/sprint-results`        | GET    | `id`                      | Résultats des sprints                    |
 
 ---
 
