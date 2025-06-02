@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from models import team_performance_model
+from models import team_performance, constructors_standings
 
 
 def get_team_performance(team_id, season=None):
@@ -13,11 +13,7 @@ def get_team_performance(team_id, season=None):
     """
     # Placeholder for actual data retrieval logic
     # In a real application, this would query a database or an external API
-    performance_data = team_performance_model.get_team_performance(team_id, season)
-    return {
-        "status": "success",
-        "data": performance_data
-    }, 200
+    return team_performance.model(team_id, season)
 
 def get_constructors_standings(year):
     """
@@ -31,7 +27,7 @@ def get_constructors_standings(year):
     """
     # Placeholder for actual implementation
     # This should call the appropriate controller method to fetch standings
-    return jsonify({'message': f'Standings for season {year}'}), 200
+    return constructors_standings.model(year)
 
 def get_top_drivers(team_id, season=None):
     """

@@ -1,6 +1,7 @@
 from db.mongo import DATABASE
 
-def get_team_performance(team_id, season=None):
+
+def model(team_id, season=None):
     """
     Retrieve the performance evolution of a team over a season or all seasons if null.
     :param team_id: ID de l'écurie (string)
@@ -42,4 +43,4 @@ def get_team_performance(team_id, season=None):
             "points": points_by_race.get(race_id, 0)
         })
 
-    return performance
+    return performance, 200 if performance else {"error": "No performance data found for the specified team"}, 404
