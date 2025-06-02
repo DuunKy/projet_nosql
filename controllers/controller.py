@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from models import team_performance, constructors_standings
+from models import team_performance, constructors_standings, top_drivers
 
 
 def get_team_performance(team_id, season=None):
@@ -39,17 +39,8 @@ def get_top_drivers(team_id, season=None):
     """
     # Placeholder for actual logic to retrieve top drivers
     # This should interact with the database or data source to get the relevant data
-    if not team_id:
-        return {'error': 'Team ID is required'}, 400
 
-    # Simulated response for demonstration purposes
-    top_drivers = [
-        {'driverId': 1, 'name': 'Driver One', 'points': 150},
-        {'driverId': 2, 'name': 'Driver Two', 'points': 120},
-        {'driverId': 3, 'name': 'Driver Three', 'points': 100}
-    ]
-
-    return {'teamId': team_id, 'season': season, 'topDrivers': top_drivers}, 200
+    return top_drivers.model(team_id, season)
 
 def get_lap_times(id, season, driver):
     # Placeholder for actual logic to retrieve lap times
