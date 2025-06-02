@@ -111,4 +111,4 @@ def model(id, season=None, driver=None):
     results = list(DATABASE["results"].aggregate(pipeline))
     # Convert ObjectId en string pour JSON
     results = [serialize_obj_id(r) for r in results]
-    return results
+    return results, 200

@@ -1,6 +1,7 @@
 from flask import jsonify
 
-from models import team_performance, constructors_standings, top_drivers, lap_time, retirements, qualif_vs_race
+from models import team_performance, constructors_standings, top_drivers, lap_time, retirements, qualif_vs_race, \
+    pitstop, compare_constructor, top_circuit
 
 
 def get_team_performance(team_id, season=None):
@@ -57,23 +58,23 @@ def get_retirements(id, season):
 def get_qualif_vs_race(id, season, driver):
     """
     Retrieve the comparison between qualifying and race results for a constructor.
-    :param id: 
-    :param season: 
-    :return: 
+    :param id:
+    :param season:
+    :return:
     """
     return qualif_vs_race.model(id, season, driver)
 
 
 def get_pitstops(id, season):
-    return None
+    return pitstop.model(id, season)
 
 
 def compare_constructors(ids, season):
-    return None
+    return compare_constructor.model(ids, season)
 
 
 def get_top_circuits(id, season, driver):
-    return None
+    return top_circuit.model(id, season, driver)
 
 
 def get_driver_averages_by_race(id, season, circuit):
