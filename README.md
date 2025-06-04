@@ -7,10 +7,12 @@ Elle s’appuie sur une base de données MongoDB et expose des endpoints REST po
 
 ## Installation
 
-### Etape 1 :
+### Prérequis:
+
+**1. Base de données :**
 Créer une base de donées **MongoDB** et la nommer `f1` *(ou autre mais pensez à bien renseigner le noms plus tard)*.
 
-### Etape 2 :
+**2. Configuration de l'environnement :**
 Créer un fichier `.env` à la racine du projet et y ajouter les variables d'environnement suivantes :
 
 ```env
@@ -19,25 +21,35 @@ DB_NAME=f1 # Ou votre nom de la base de données
 
 DATA_PATH=./data
 ```
-### Etape 3 :
+**3. Dépendances :**
 Installer les dépendances du projet :
 
 ```bash
 pip install -r requirements.txt
+npm init -y
+npm install dotenv
 ```
 
-### Etape 4 :
+**4. Import datas :**
 Lancer le script d'import des données :
 
 ```bash
 python import_data.py
 ```
 
-### Etape 5 :
+### Start :
+
+* Backend :
 Lancer le serveur FastAPI :
 
 ```bash
 flask run
+```
+* Frontend :
+Lancer le serveur de développement pour le frontend :
+
+```bash
+node frontend/server.js
 ```
 
 ## Utilisation
