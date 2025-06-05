@@ -43,4 +43,8 @@ def model(team_id, season=None):
             "points": points_by_race.get(race_id, 0)
         })
 
-    return performance, 200 if performance else {"error": "No performance data found for the specified team"}, 404
+    if performance:
+        return performance, 200
+    else:
+        return {"error": "No performance data found for the specified team"}, 404
+
