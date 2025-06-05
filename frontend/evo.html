@@ -62,14 +62,18 @@
         document.getElementById("loader").style.display = "none";
     }
 
+// Initialisation du sélecteur de requêtes ---------------------------------------------------------------------------- QuerySelector
     function initQuerySelector() {
         const querySelect = document.getElementById("querySelect");
         const queries = {
             "performance": "Évolution performance d'une écurie",
             "standings": "Classement final des écuries",
             "standing-evolution": "Évolution du classement",
-            "top-drivers": "Pilotes les plus performants"
+            "top-drivers": "Pilotes les plus performants",
+            "lap-times-circuit": "Temps au tour par pilote sur un circuit",
+            "retirements": "Abandons d'une écurie"
         };
+
 
         for (const [key, label] of Object.entries(queries)) {
             const option = document.createElement("option");
@@ -86,13 +90,15 @@
         }
     }
 
+// Initialisation des sélecteurs de paramètres ------------------------------------------------------------------------- BuildSelectors
     async function buildSelectors(query) {
         await initConstructors();
 
         const container = document.getElementById("paramSelectors");
         container.innerHTML = "";
 
-        if (["performance", "standing-evolution", "standings"].includes(query)) {
+        // Saison
+        if (["performance", "standing-evolution", "standings", "standings"].includes(query)) {
             const seasonSelect = document.createElement("select");
             seasonSelect.id = "seasonSelect";
             seasonSelect.className = "form-select d-inline-block w-auto me-2";
@@ -109,7 +115,8 @@
             container.appendChild(seasonSelect);
         }
 
-        if (["performance", "top-drivers"].includes(query)) {
+        // Écurie
+        if (["performance", "top-drivers", "standings"].includes(query)) {
             const constSelect = document.createElement("select");
             const constId = "constructorSelect";
             constSelect.id = constId;
@@ -124,10 +131,102 @@
             container.appendChild(constSelect);
         }
 
+        if (query === "lap-times-circuit") {
+            // Saison
+            const seasonSelect = document.createElement("select");
+            seasonSelect.id = "seasonSelect";
+            seasonSelect.className = "form-select d-inline-block w-auto me-2";
+            seasonSelect.innerHTML = `<option selected disabled>-- Saison --</option>`;
+            const seasons = await fetchJSON(baseURL + "seasons");
+            if (seasons?.data) {
+                seasons.data.sort((a, b) => b.year - a.year).forEach(s => {
+                    const opt = document.createElement("option");
+                    opt.value = s.year;
+                    opt.textContent = s.year;
+                    seasonSelect.appendChild(opt);
+                });
+            }
+            container.appendChild(seasonSelect);
+
+            // Écurie
+            const constSelect = document.createElement("select");
+            constSelect.id = "constructorSelect";
+            constSelect.className = "form-select d-inline-block w-auto me-2";
+            constSelect.innerHTML = `<option selected disabled>-- Écurie --</option>`;
+            constructors.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.constructorId;
+                opt.textContent = c.name;
+                constSelect.appendChild(opt);
+            });
+            container.appendChild(constSelect);
+
+            // Circuit
+            const circuitSelect = document.createElement("select");
+            circuitSelect.id = "circuitSelect";
+            circuitSelect.className = "form-select d-inline-block w-auto me-2";
+            circuitSelect.innerHTML = `<option selected disabled>-- Circuit --</option>`;
+            const circuits = await fetchJSON(baseURL + "circuits");
+            if (circuits?.data) {
+                circuits.data.forEach(c => {
+                    const opt = document.createElement("option");
+                    opt.value = c.circuitId;
+                    opt.textContent = c.name;
+                    circuitSelect.appendChild(opt);
+                });
+            }
+            container.appendChild(circuitSelect);
+
+            // Pilote
+            const driverSelect = document.createElement("select");
+            driverSelect.id = "driverSelect";
+            driverSelect.className = "form-select d-inline-block w-auto me-2";
+            driverSelect.innerHTML = `<option selected disabled>-- Pilote --</option>`;
+            const drivers = await fetchJSON(baseURL + "drivers");
+            if (drivers?.data) {
+                drivers.data.forEach(d => {
+                    const opt = document.createElement("option");
+                    opt.value = d.driverId;
+                    opt.textContent = `${d.forename} ${d.surname}`;
+                    driverSelect.appendChild(opt);
+                });
+            }
+            container.appendChild(driverSelect);
+
+            async function updateDriversForConstructor() {
+                const constructorId = document.getElementById("constructorSelect")?.value;
+                const season = document.getElementById("seasonSelect")?.value;
+                const driverSelect = document.getElementById("driverSelect");
+
+                if (!constructorId || !season) return;
+
+                // Réinitialise
+                driverSelect.innerHTML = `<option selected disabled>-- Pilote --</option>`;
+
+                const res = await fetchJSON(`${baseURL}constructors/${constructorId}/drivers?season=${season}`);
+                if (res?.data) {
+                    res.data.forEach(driver => {
+                        const opt = document.createElement("option");
+                        opt.value = driver.driverId;
+                        opt.textContent = `${driver.forename} ${driver.surname}`;
+                        driverSelect.appendChild(opt);
+                    });
+                }
+            }
+
+            seasonSelect.addEventListener("change", updateDriversForConstructor);
+            constSelect.addEventListener("change", updateDriversForConstructor);
+        }
+
+
         document.getElementById("seasonSelect")?.addEventListener("change", onParamsChange);
         document.getElementById("constructorSelect")?.addEventListener("change", onParamsChange);
     }
 
+
+
+
+    // Gestion des changements de requête et de paramètres ---------------------------------------------------------------- OnQueryChange & OnParamsChange
     function onQueryChange() {
         const query = document.getElementById("querySelect").value;
         buildSelectors(query);
@@ -153,9 +252,22 @@
             case "top-drivers":
                 if (constructorId) loadTopDriversForConstructor(constructorId);
                 break;
+            case "lap-times-circuit":
+                const driverId = document.getElementById("driverSelect")?.value;
+                const circuitId = document.getElementById("circuitSelect")?.value;
+                if (season && constructorId && driverId && circuitId) {
+                    loadLapTimesChart(constructorId, circuitId, driverId, season);
+                }
+                break;
+            case "retirements":
+                if (season && constructorId) loadRetirements(constructorId, season);
+                break;
+
+
         }
     }
 
+// Chargement initial des sélecteurs et du graphique par défaut -------------------------------------------------------- LOADS
     async function loadPerformanceChart(teamId, season) {
         showLoader();
         const data = await fetchJSON(`${baseURL}teams/${teamId}/performance?season=${season}`);
@@ -207,16 +319,55 @@
         const standingsData = await fetchJSON(`${baseURL}seasons/${season}/constructors/standings`);
         hideLoader();
 
-        if (!standingsData) return;
+        if (!standingsData || standingsData.length === 0) {
+            document.getElementById("performanceData").innerHTML = "<p class='text-warning'>Aucune donnée disponible.</p>";
+            return;
+        }
 
-        let html = `<table class="table table-striped table-bordered">
-    <thead><tr><th>Position</th><th>Écurie</th><th>Points</th></tr></thead><tbody>`;
+        // Supprimer ancien graphique s'il existe
+        if (chartInstance) chartInstance.destroy();
+
+        const labels = [];
+        const points = [];
+        const colors = [];
+
         standingsData.forEach(item => {
-            const name = constructors.find(c => c.constructorId === item.constructorId)?.name || "Inconnu";
-            html += `<tr><td>${item.position}</td><td>${name}</td><td>${item.points}</td></tr>`;
+            const name = constructors.find(c => c.constructorId === item.constructorId)?.name || item.constructorId;
+            labels.push(name);
+            points.push(item.points);
+            colors.push(getRandomColor());
         });
-        html += `</tbody></table>`;
-        document.getElementById("performanceData").innerHTML = html;
+
+        const ctx = document.getElementById("evoChart").getContext("2d");
+        chartInstance = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels,
+                datasets: [{
+                    label: "Points",
+                    data: points,
+                    backgroundColor: colors
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Classement des écuries - Saison ${season}`
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: "Points" } },
+                    x: { title: { display: true, text: "Écuries" } }
+                }
+            }
+        });
+
+        document.getElementById("chartContainer").classList.remove("d-none");
+        document.getElementById("performanceData").innerHTML = ""; // Nettoyage du tableau précédent
     }
 
     async function loadChartForSeason(season) {
@@ -311,12 +462,104 @@
         document.getElementById("chartContainer").classList.remove("d-none");
     }
 
+    async function loadLapTimesChart(constructorId, circuitId, driverId, season) {
+        showLoader();
+        const url = `${baseURL}constructors/${constructorId}/${circuitId}/lap-times?season=${season}&driver=${driverId}`;
+        const data = await fetchJSON(url);
+        hideLoader();
+
+        if (!data || data.length === 0) {
+            document.getElementById("performanceData").innerHTML = "<p class='text-warning'>Aucune donnée disponible.</p>";
+            return;
+        }
+
+        const ctx = document.getElementById("evoChart").getContext("2d");
+        const labels = data.map(lap => `Tour ${lap.lap}`);
+        const times = data.map(lap => lap.milliseconds / 1000); // Convert to seconds
+
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels,
+                datasets: [{
+                    label: "Temps au tour (s)",
+                    data: times,
+                    borderColor: "rgba(255,99,132,1)",
+                    backgroundColor: "rgba(255,99,132,0.2)",
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Temps au tour - ${season}`
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: false, title: { display: true, text: "Temps (s)" } },
+                    x: { title: { display: true, text: "Tour" } }
+                }
+            }
+        });
+
+        document.getElementById("chartContainer").classList.remove("d-none");
+    }
+
+    async function loadRetirements(constructorId, season) {
+        showLoader();
+        const data = await fetchJSON(`${baseURL}constructors/${constructorId}/retirements?season=${season}`);
+        hideLoader();
+
+        if (!data || data.length === 0) {
+            document.getElementById("performanceData").innerHTML = "<p class='text-warning'>Aucun abandon trouvé.</p>";
+            return;
+        }
+
+        const ctx = document.getElementById("evoChart").getContext("2d");
+        chartInstance = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: data.map(item => item.raceName),
+                datasets: [{
+                    label: "Nombre d'abandons",
+                    data: data.map(item => item.count),
+                    backgroundColor: "rgba(255, 99, 132, 0.6)"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Abandons de ${constructorId} - Saison ${season}`
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: "Abandons" } },
+                    x: { title: { display: true, text: "Course" } }
+                }
+            }
+        });
+
+        document.getElementById("chartContainer").classList.remove("d-none");
+    }
+
     function getRandomColor() {
         const r = Math.floor(Math.random() * 200);
         const g = Math.floor(Math.random() * 200);
         const b = Math.floor(Math.random() * 200);
         return `rgba(${r}, ${g}, ${b}, 0.8)`;
     }
+
+
 
     initQuerySelector();
 </script>
