@@ -5,12 +5,21 @@ const path = require('path');
 
 const PORT = process.env.FRONTEND_PORT || 5001;
 
+// Dossier racine des fichiers statiques
+const publicDir = path.join(__dirname, 'public');
+
 const server = http.createServer((req, res) => {
-    let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
+    console.log('Requête reçue :', req.url); // <== Ajoute ça
+    // Prévenir les attaques par traversal de chemin
+    const decodedUrl = decodeURIComponent(req.url.split('?')[0]);
+    const safePath = path.normalize(decodedUrl).replace(/^(\.\.[\/\\])+/, '');
+    const finalPath = (safePath === '/' || safePath === '\\') ? 'index.html' : safePath;
+    let filePath = path.join(publicDir, finalPath);
+    console.log('Chemin de fichier :', filePath); // <== Ajoute ça
+
     const extname = path.extname(filePath);
     let contentType = 'text/html';
 
-    // Détecter le type de contenu
     switch (extname) {
         case '.js':
             contentType = 'application/javascript';

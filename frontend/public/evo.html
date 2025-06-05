@@ -1,0 +1,59 @@
+<!-- TOUT LE FICHIER MIS À JOUR CI-DESSOUS -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard F1</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #f8f9fa; }
+        .chart-container { height: 400px; overflow-x: auto; margin-top: 30px; }
+        .chart-wrapper { min-width: 600px; height: 100%; }
+        canvas { height: 100% !important; width: 100% !important; }
+        #loader { display: none; }
+        #chartContainer {
+            max-height: 400px; /* ou ce qui convient */
+            overflow-y: auto;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+        #performanceData {
+            max-height: none !important;
+            overflow-y: visible !important;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+<h2 class="text-center mb-4">Analyse F1 - Dashboard</h2>
+
+<div class="mb-3 text-center">
+    <label for="querySelect" class="form-label fw-bold">Analyse :</label>
+    <select id="querySelect" class="form-select d-inline-block w-auto">
+        <option selected disabled>-- Choisir une analyse --</option>
+    </select>
+</div>
+
+<div id="paramSelectors" class="text-center mb-4"></div>
+
+<div class="text-center" id="loader">
+    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div>
+</div>
+
+<div id="chartContainer" class="chart-container d-none">
+    <div class="chart-wrapper"><canvas id="evoChart"></canvas></div>
+</div>
+
+<div id="performanceData" class="container mt-3"></div>
+<script type="module" src="loads/constructorStandings.js"></script>
+<script type="module" src="loads/topDriver.js"></script>
+<script type="module" src="loads/seasons.js"></script>
+<script type="module" src="loads/lapTime.js"></script>
+<script type="module" src="loads/Retirements.js"></script>
+<script type="module" src="services/utils.js"></script>
+<script type="module" src="evo.js"></script>
+</body>
+</html>
